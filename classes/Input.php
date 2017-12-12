@@ -26,7 +26,7 @@ class Input
 	 *
 	 * @return String
 	 */
-	public static function user_agent($default = '')
+	public static function userAgent($default = '')
 	{
 		return static::server('HTTP_USER_AGENT', $default);
 	}

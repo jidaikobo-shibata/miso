@@ -27,25 +27,21 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 */
 
 // WP_INSTALLING
-if (defined('WP_INSTALLING') && WP_INSTALLING)
-{
-	return;
-}
+if (defined('WP_INSTALLING') && WP_INSTALLING) return;
 
 // language
-load_plugin_textdomain(
-	'miso',
-	FALSE,
-	plugin_basename(__DIR__).'/languages'
-);
+load_plugin_textdomain('miso', FALSE, plugin_basename(__DIR__).'/languages');
 
 // Autoloader
 include(__DIR__.'/classes/Util.php');
-\Dashi\Core\Util::addAutoloaderPath(__DIR__.'/classes/', 'Miso');
+\Miso\Util::addAutoloaderPath(__DIR__.'/classes/', 'Miso');
 
 // session
-add_action('init', array('\\Dashi\\Core\\Session', 'forge'), 10, 0);
+add_action('init', array('\\Miso\\Session', 'forge'), 10, 0);
 
-// forge to init
-// \Miso\Core\Alias::forge();
-// \Miso\Core\Security::forge();
+// Prepare
+\Miso\Miso::prepare();
+
+// Routing (loading)
+\Miso\Load::setPageTitle();
+\Miso\Load::controller();
