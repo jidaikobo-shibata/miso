@@ -1,0 +1,17 @@
+# ja
+msgid ""
+msgstr ""
+"Project-Id-Version: miso\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# msgfmt -o ./miso-ja.mo ./miso-ja.po
+
+msgid "MVC Framework which coexist with WordPress role system and routing."
+msgstr "WordPressのロール管理とルーティングと共存するMVCフレームワークです。"
+
+msgid "Jidaikobo Inc."
+msgstr "時代工房"
+
+#:=== strings ===
