@@ -8,8 +8,8 @@ msgstr ""
 
 # msgfmt -o ./miso-ja.mo ./miso-ja.po
 
-msgid "MVC Framework which coexist with WordPress role system and routing."
-msgstr "WordPressのロール管理とルーティングと共存するMVCフレームワークです。"
+msgid "light weight MVC Framework which coexist with WordPress role system and routing."
+msgstr "WordPressのロール管理とルーティングと共存する軽量MVCフレームワークです。"
 
 msgid "Jidaikobo Inc."
 msgstr "時代工房"

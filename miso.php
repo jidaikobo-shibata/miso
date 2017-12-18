@@ -2,11 +2,11 @@
 /*
 Plugin Name: Miso
 Plugin URI: https://wordpress.org/plugins/miso/
-Description: MVC Framework which coexist with WordPress role system and routing.
+Description: light weight MVC Framework which coexist with WordPress role system and routing.
 Author: Jidaikobo Inc.
 Text Domain: miso
 Domain Path: /languages/
-Version: 0.1
+Version: 0.2
 Author URI: http://www.jidaikobo.com/
 License: GPL2
 
@@ -36,12 +36,39 @@ load_plugin_textdomain('miso', FALSE, plugin_basename(__DIR__).'/languages');
 include(__DIR__.'/classes/Util.php');
 \Miso\Util::addAutoloaderPath(__DIR__.'/classes/', 'Miso');
 
+// Idiorm and Paris
+if ( ! class_exists('ORM'))        include(__DIR__.'/libs/idiorm/idiorm.php');
+if ( ! class_exists('ORMWrapper')) include(__DIR__.'/libs/paris/paris.php');
+
+// configure
+\ORM::configure('mysql:host='.DB_HOST.';dbname='.DB_NAME);
+\ORM::configure('username', DB_USER);
+\ORM::configure('password', DB_PASSWORD);
+
 // session
 add_action('init', array('\\Miso\\Session', 'forge'), 10, 0);
+
+// out buffer for in controller redirection
+add_filter('after_setup_theme', array('\\Miso\\Miso', 'bufferStart'), 20);
+add_filter('shutdown', array('\\Miso\\Miso', 'bufferOut'), 20);
+
+// help
+add_action(
+	'admin_menu',
+	function ()
+	{
+		add_options_page(
+			__('Miso Framework', 'dashi'),
+			__('Miso Framework', 'dashi'),
+			'level_10',
+			'miso_options',
+			array('\\Miso\\Help', 'ussage')
+		);
+	});
 
 // Prepare
 \Miso\Miso::prepare();
 
 // Routing (loading)
-\Miso\Load::setPageTitle();
-\Miso\Load::controller();
+\Miso\Miso::setPageTitle();
+\Miso\Miso::controller();

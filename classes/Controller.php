@@ -26,6 +26,63 @@ abstract class Controller
 	abstract public static function actionIndex();
 
 	/**
+	 * get sorted properties
+	 *
+	 * @return Object
+	 */
+	public static function sortedProperties()
+	{
+		$properties = (array) static::properties();
+		$position = array();
+		foreach ($properties as $key => $row)
+		{
+			$pos = intval(Arr::get($row, 'position'));
+			if ( ! isset($properties->$key)) continue;
+			Arr::set($properties->$key, 'position', $pos);
+			$position[$key] = $pos;
+		}
+		if ($position)
+		{
+			array_multisort($position, SORT_ASC, $properties);
+		}
+		return (object) $properties;
+	}
+
+	/**
+	 * indexes
+	 *
+	 * @return Array
+	 */
+	private static function indexes()
+	{
+		$indexes = array();
+		$properties = static::sortedProperties();
+
+		if (isset($properties->index))
+		{
+			$indexes[] = array(
+				'controller' => get_called_class(),
+				'action'     => 'index',
+				'str'        => __('All'),
+				'num'        => Arr::get($properties->index, 'num', false),
+			);
+		}
+
+		foreach ($properties as $k => $v)
+		{
+			if ( ! Arr::get($v, 'is_index', false)) continue;
+			$indexes[] = array(
+				'controller' => get_called_class(),
+				'action'     => $k,
+				'str'        => __(Arr::get($v, 'menu_title'), 'miso'),
+				'num'        => Arr::get($v, 'num', false),
+			);
+		}
+
+		return $indexes;
+	}
+
+	/**
 	 * base
 	 *
 	 * @return Void
@@ -38,7 +95,11 @@ abstract class Controller
 		// execute
 		$body = static::$method();
 
-		// Session::add('messages', 'errors', 'hoge');
+		//Session::add('messages', 'errors', 'hoge');
+// nonce強制
+// method が post
+
+		$indexes = self::indexes();
 
 		// draw
 		if ($body)
@@ -59,6 +120,22 @@ abstract class Controller
 			require (dirname(__DIR__).'/views/messages.php');
 
 			// echo other actions?
+			if ($indexes)
+			{
+				$links = array();
+				foreach ($indexes as $index)
+				{
+					$str = esc_html($index['str']);
+					$action = esc_html($index['action']);
+					$count = $index['num'] ? ' <span class="count">('.$index['num'].')</span>' : '';
+					$link = Miso::getMisoUrl($index['controller'], $action);
+					$current = Miso::isCurrent($action) ? ' class="current"' : '' ;
+					$links[] = '<li class="'.$action.'"><a href="'.$link.'"'.$current.'>'.$str.$count.'</a></li>';
+				}
+
+				$html = '<ul class="subsubsub">'.join(' | ', $links).'</ul><br class="clear" />';
+				echo $html;
+			}
 
 			// echo body
 			echo $body;
@@ -73,7 +150,7 @@ abstract class Controller
 	/**
 	 * routing
 	 *
-	 * @return Array|Bool
+	 * @return Array
 	 */
 	public static function routing()
 	{
@@ -84,36 +161,62 @@ abstract class Controller
 		{
 			return array('action', 'index', 'actionIndex');
 		}
-		else
-		{
-			// other action
-			// post and get takes priority other action
-			foreach (array('post', 'get', 'action') as $baseaction)
-			{
-				if (in_array($baseaction, array('post', 'get')))
-				{
-					$action = Input::$baseaction('action');
-				}
-				$action_name = $baseaction.ucfirst($action);
-				if (method_exists(get_called_class(), $action_name))
-				{
-					// check capability
-					$properties = static::properties();
-					$cu = wp_get_current_user();
-					if (isset($properties->$action['capability']))
-					{
-						if ( ! $cu->has_cap($properties->$action['capability'])) return false;
-					}
-					elseif ( ! $cu->has_cap($properties->index['capability']))
-					{
-						return false;
-					}
 
-					// return function
-					return array($baseaction, $action, $action_name);
+		// other action
+		// post takes priority other action
+		$baseaction = 'action';
+		if (
+			Input::server('REQUEST_METHOD') == 'POST' &&
+			method_exists(get_called_class(), 'post'.ucfirst($action))
+		)
+		{
+			$baseaction = 'post';
+		}
+		$action_name = $baseaction.ucfirst($action);
+
+		// check capability
+		if (method_exists(get_called_class(), $action_name))
+		{
+			// check capability
+			$properties = static::properties();
+			$cu = wp_get_current_user();
+			if (isset($properties->$action['capability']))
+			{
+				if ( ! $cu->has_cap($properties->$action['capability']))
+				{
+					return array(false, false, false);
 				}
 			}
+			elseif ( ! $cu->has_cap($properties->index['capability']))
+			{
+				return array(false, false, false);
+			}
+
+			// return function
+			return array($baseaction, $action, $action_name);
 		}
-		return false;
+		return array(false, false, false);
+	}
+
+	/**
+	 * url
+	 *
+	 * @param  String $action
+	 * @return Void
+	 */
+	protected static function url($action)
+	{
+		return Miso::getMisoUrl(get_called_class(), $action);
+	}
+
+	/**
+	 * redirect
+	 *
+	 * @param  String $action
+	 * @return Void
+	 */
+	protected static function redirect($action)
+	{
+		Miso::redirect(get_called_class(), $action);
 	}
 }

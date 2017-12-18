@@ -8,11 +8,11 @@ Stable tag: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-MVC Framework which coexist with WordPress role system and routing.
+light weight MVC Framework which coexist with WordPress role system and routing.
 
 == Description ==
 
-MVC Framework which coexist with WordPress role system and routing.
+light weight MVC Framework which coexist with WordPress role system and routing.
 
 [translate by using GlotPress](https://translate.wordpress.org/projects/wp-plugins/miso)
 
@@ -25,6 +25,9 @@ MVC Framework which coexist with WordPress role system and routing.
 1. Use the Settings -> Plugin Name screen to configure the plugin
 
 == Changelog ==
+
+= 0.2 =
+add Idiorm and Paris and many classes
 
 = 0.1 =
 first commit.
