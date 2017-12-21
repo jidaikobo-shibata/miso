@@ -74,3 +74,5 @@ add_action(
 // Routing (loading)
 \Miso\Miso::setPageTitle();
 \Miso\Miso::controller();
+
+
