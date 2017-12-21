@@ -69,6 +69,8 @@ add_action(
 // Prepare
 \Miso\Miso::prepare();
 
+
+
 // Routing (loading)
 \Miso\Miso::setPageTitle();
 \Miso\Miso::controller();
