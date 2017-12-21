@@ -9,6 +9,6 @@
  */
 namespace Miso;
 
-class Model
+class Model extends \Model
 {
 }

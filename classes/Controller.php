@@ -11,12 +11,7 @@ namespace Miso;
 
 abstract class Controller
 {
-	/**
-	 * properties
-	 *
-	 * @return Array
-	 */
-	abstract public static function properties();
+	protected static $properties = array();
 
 	/**
 	 * actionIndex
@@ -26,26 +21,29 @@ abstract class Controller
 	abstract public static function actionIndex();
 
 	/**
-	 * get sorted properties
+	 * properties
 	 *
-	 * @return Object
+	 * @return Array
 	 */
-	public static function sortedProperties()
+	final public static function properties()
 	{
-		$properties = (array) static::properties();
+		// throw error
+		if (empty(static::$properties) || ! is_array(static::$properties)) throw new \Exception(__('Fatal Error: Controller class must implement protected static::$properties', 'miso'));
+
+		$properties = static::$properties;
 		$position = array();
 		foreach ($properties as $key => $row)
 		{
 			$pos = intval(Arr::get($row, 'position'));
-			if ( ! isset($properties->$key)) continue;
-			Arr::set($properties->$key, 'position', $pos);
+			if ( ! isset($properties[$key])) continue;
+			Arr::set($properties[$key], 'position', $pos);
 			$position[$key] = $pos;
 		}
 		if ($position)
 		{
 			array_multisort($position, SORT_ASC, $properties);
 		}
-		return (object) $properties;
+		return $properties;
 	}
 
 	/**
@@ -56,15 +54,15 @@ abstract class Controller
 	private static function indexes()
 	{
 		$indexes = array();
-		$properties = static::sortedProperties();
+		$properties = static::properties();
 
-		if (isset($properties->index))
+		if (isset($properties['index']))
 		{
 			$indexes[] = array(
 				'controller' => get_called_class(),
 				'action'     => 'index',
 				'str'        => __('All'),
-				'num'        => Arr::get($properties->index, 'num', false),
+				'num'        => Arr::get($properties['index'], 'num', false),
 			);
 		}
 
@@ -106,7 +104,7 @@ abstract class Controller
 		{
 			// show page
 			$properties = static::properties();
-			$properties = $properties->$action;
+			$properties = $properties[$action];
 
 			// echo h1
 			$html = '';
@@ -125,7 +123,7 @@ abstract class Controller
 				$links = array();
 				foreach ($indexes as $index)
 				{
-					$str = esc_html($index['str']);
+					$str = __(__(esc_html($index['str'])), 'miso');
 					$action = esc_html($index['action']);
 					$count = $index['num'] ? ' <span class="count">('.$index['num'].')</span>' : '';
 					$link = Miso::getMisoUrl($index['controller'], $action);
@@ -180,14 +178,14 @@ abstract class Controller
 			// check capability
 			$properties = static::properties();
 			$cu = wp_get_current_user();
-			if (isset($properties->$action['capability']))
+			if (isset($properties[$action]['capability']))
 			{
-				if ( ! $cu->has_cap($properties->$action['capability']))
+				if ( ! $cu->has_cap($properties[$action]['capability']))
 				{
 					return array(false, false, false);
 				}
 			}
-			elseif ( ! $cu->has_cap($properties->index['capability']))
+			elseif ( ! $cu->has_cap($properties['index']['capability']))
 			{
 				return array(false, false, false);
 			}
@@ -204,7 +202,7 @@ abstract class Controller
 	 * @param  String $action
 	 * @return Void
 	 */
-	protected static function url($action)
+	public static function url($action)
 	{
 		return Miso::getMisoUrl(get_called_class(), $action);
 	}

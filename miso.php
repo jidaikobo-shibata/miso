@@ -58,8 +58,8 @@ add_action(
 	function ()
 	{
 		add_options_page(
-			__('Miso Framework', 'dashi'),
-			__('Miso Framework', 'dashi'),
+			__('Miso Framework', 'miso'),
+			__('Miso Framework', 'miso'),
 			'level_10',
 			'miso_options',
 			array('\\Miso\\Help', 'ussage')

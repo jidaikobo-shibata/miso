@@ -14,4 +14,7 @@ msgstr "WordPressのロール管理とルーティングと共存する軽量MVC
 msgid "Jidaikobo Inc."
 msgstr "時代工房"
 
+msgid "Miso Framework"
+msgstr "味噌"
+
 #:=== strings ===

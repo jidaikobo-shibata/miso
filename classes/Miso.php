@@ -93,6 +93,12 @@ class Miso
 				if (in_array($class_name, static::${$type})) continue;
 				if ( ! class_exists($class_name)) continue;
 				static::${$type}[] = $class_name;
+
+				// init
+				if (method_exists($class_name, '_init') and is_callable($class_name.'::_init'))
+				{
+					call_user_func($class_name.'::_init');
+				}
 			}
 		}
 	}
@@ -113,10 +119,10 @@ class Miso
 
 		$properties = $classname::properties();
 		if (
-			! isset($properties->$action['page_title']) ||
-			empty($properties->$action['page_title'])
+			! isset($properties[$action]['page_title']) ||
+			empty($properties[$action]['page_title'])
 		) return;
-		$properties = $properties->$action;
+		$properties = $properties[$action];
 
 		// modify page title
 		add_action(
@@ -146,6 +152,7 @@ class Miso
 	public static function controller()
 	{
 		$controllers = self::get('controllers');
+
 		foreach ($controllers as $controller)
 		{
 			// left admin menu
@@ -160,17 +167,17 @@ class Miso
 					{
 						// default
 						// the others of below should call error
-						$icon_url = Arr::get($properties->$k, 'icon_url', '');
-						$position = Arr::get($properties->$k, 'position');
+						$icon_url = Arr::get($properties[$k], 'icon_url', '');
+						$position = Arr::get($properties[$k], 'position');
 						$position = $position ?: 25;
 
 						// add_menu_page
 						if ($k == 'index')
 						{
 							add_menu_page(
-								__($properties->index['page_title'], 'miso'), // page title
-								__($properties->index['menu_title'], 'miso'), // menu title
-								$properties->index['capability'], // capability
+								__($properties['index']['page_title'], 'miso'), // page title
+								__($properties['index']['menu_title'], 'miso'), // menu title
+								$properties['index']['capability'], // capability
 								$slug, // slug
 								array($controller, 'base'), // function
 								$icon_url, // icon_url
@@ -178,20 +185,20 @@ class Miso
 							);
 							continue;
 						}
-						elseif (Arr::get($properties->$k, 'is_submenu', false))
+						elseif (Arr::get($properties[$k], 'is_submenu', false))
 						{
 							add_submenu_page(
 								$slug,
-								__($properties->$k['page_title'], 'miso'),
-								__($properties->$k['menu_title'], 'miso'),
-								$properties->$k['capability'],
+								__($properties[$k]['page_title'], 'miso'),
+								__($properties[$k]['menu_title'], 'miso'),
+								$properties[$k]['capability'],
 								$slug.'&amp;action='.$k,
 								array($controller, 'base')
 							);
 						}
 
 						// accessible but not show in menu
-						if (Arr::get($properties->index, 'is_menu', false))
+						if (Arr::get($properties['index'], 'is_menu', false))
 						{
 							remove_menu_page($slug);
 						}
