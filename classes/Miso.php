@@ -56,7 +56,7 @@ class Miso
 		// add language of child theme
 		if (get_stylesheet_directory() != get_template_directory())
 		{
-			foreach (glob(get_template_directory()."/miso/".$dir."/*.php") as $filename)
+			foreach (glob(get_template_directory()."/miso/languages/*") as $filename)
 			{
 				load_plugin_textdomain('miso', FALSE, dirname($filename));
 				break;
