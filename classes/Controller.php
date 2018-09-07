@@ -18,7 +18,7 @@ abstract class Controller
 	 *
 	 * @return Void
 	 */
-	abstract public static function actionIndex();
+//	abstract public static function actionIndex();
 
 	/**
 	 * properties
